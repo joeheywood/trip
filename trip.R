@@ -2,19 +2,20 @@ library(dplyr)
 library(rvest)
 library(stringr)
 library(jsonlite)
+library(readr)
 #load("tripAdvisor.Rda")
 
 
 
 
 getReviewsPage <- function(lk, n = 100, minReviews = 5) {
-    # get data about hotel - name, location, website? etc
-    # get reviews divs
     out <- data.frame()
     nextLink <- TRUE
     orVal <- 10
+    restName <- "unknown"
     while(nextLink == TRUE) {
         s <- html_session(lk)
+        restName <- html_node(s, "h1#HEADING") %>% html_text() %>% str_trim()
         revs <- html_node(s, "#REVIEWS") %>% html_nodes(".basic_review")
         rx <- do.call(rbind, lapply(revs, getReview))
         out <- rbind(out, rx)
@@ -28,21 +29,19 @@ getReviewsPage <- function(lk, n = 100, minReviews = 5) {
             print("*************************************************************")
         }
     }
+    write_csv(out, "../csv/", str_replace(restName, " ", "_"))
     out
-
 }
 
-
 getReview <- function(rv) {
-    # get name of reviewer, call getAddReviewer()
+    # get the rating 
+    thisRat <- html_nodes(rv, ".rating_s_fill") %>% html_attr("alt") %>% 
+    str_extract("\\d") %>% as.numeric()
     contr <- html_node(rv, ".memberOverlayLink") %>% html_attr(name = "id")
     contr <- gsub("UID_", "uid=", contr)
     contr <- gsub("-SRC_", "&src=", contr)
-    html_session(paste0("https://www.tripadvisor.co.uk/MemberOverlay?Mode=owa&",
-                        contr)) %>% 
-        html_node("a") %>% 
-        html_attr("href") %>%
-        getAddReviewer()
+    html_session(paste0("https://www.tripadvisor.co.uk/MemberOverlay?Mode=owa&",contr)) %>% 
+        html_node("a") %>% html_attr("href") %>% getAddReviewer()
 }
 
 getAddReviewer <- function(nm) {
@@ -81,6 +80,7 @@ getReviewContent <- function(link, rev) {
                    rating = html_node(s, paste0("div#review_", revNum)) %>% 
                        html_node("img.sprite-rating_s_fill") %>% 
                        html_attr("alt"),
+                   city = html_node(s, "div.slim_ranking a") %>% html_text(),
                    link = link,
                    reviewer = rev, stringsAsFactors = FALSE  )
     }, error = function(e){
@@ -99,12 +99,16 @@ findRest <- function(x) {
     findNm <- "https://www.tripadvisor.co.uk/TypeAheadJson?types=eat&query=%s&action=API&uiOrigin=MASTHEAD&source=MASTHEAD&startTime=1476457447850"
     x <- gsub(" ", "%20", x)
     typ <- fromJSON(sprintf(findNm, x))
-    data.frame(name = typ$results$name, url = typ$results$url)
+    data.frame(name = typ$results$name, url = typ$results$url, stringsAsFactors = FALSE)
 }
 
 addRev <- function(lk, sc) {
-    print(getwd())
-    load("blah.Rda")
+    ff <- read_csv("../csv/savedRest.csv")
     ff <- rbind(ff, data.frame(url = lk, score = sc))
-    save(ff, file = "blah.Rda")
+    write_csv(ff, "../csv/savedRest.csv")
+    ff
+}
+
+getRev <- function() {
+    read_csv("../csv/savedRest.csv")
 }
