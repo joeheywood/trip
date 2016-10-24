@@ -22,11 +22,20 @@ shinyUI(fluidPage(
             p(actionLink("addRest", "Add rating"))
         ),
         mainPanel(
-            h1("Some results.."),
-            p(textOutput("res")),
-            dataTableOutput("restTable"),
-            p(actionLink("showRest", "Show restaurants")),
-            p(textOutput("selectedRev"))
+            tabsetPanel(
+                tabPanel(
+                    "Restos",
+                    p(textOutput("res")),
+                    dataTableOutput("restTable"),
+                    p(actionLink("getData", "Get data"), " | ",
+                      actionLink("removeRev", "Remove")),
+                    p(textOutput("selectedRev"))
+                ),
+                tabPanel(
+                    "Collected Data"
+                )
+            )
+            
         )
     )
 ) 

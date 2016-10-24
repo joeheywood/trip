@@ -3,10 +3,6 @@ library(rvest)
 library(stringr)
 library(jsonlite)
 library(readr)
-#load("tripAdvisor.Rda")
-
-
-
 
 getReviewsPage <- function(lk, n = 100, minReviews = 5) {
     out <- data.frame()
@@ -40,21 +36,18 @@ getReview <- function(rv) {
     contr <- html_node(rv, ".memberOverlayLink") %>% html_attr(name = "id")
     contr <- gsub("UID_", "uid=", contr)
     contr <- gsub("-SRC_", "&src=", contr)
-    html_session(paste0("https://www.tripadvisor.co.uk/MemberOverlay?Mode=owa&",contr)) %>% 
+    html_session(paste0("https://www.tripadvisor.co.uk/MemberOverlay?Mode=owa&",
+                        contr)) %>% 
         html_node("a") %>% html_attr("href") %>% getAddReviewer()
 }
 
 getAddReviewer <- function(nm) {
-    # TO ADD: ratings, name of restaurant, city etc.
     print(paste0("Getting user page... ", nm))
     s <- html_session(paste0("https://www.tripadvisor.co.uk", nm))
     revs <- html_nodes(s, "li.cs-review")
     print("Getting links..")
     links <- vapply(revs, getReviewLink, "")
     links <- paste0("https://www.tripadvisor.co.uk",links[which(nchar(links) > 0)])
-    #content <- vapply(links, getReviewContent, "")
-    # change reviewer passed as argument
-    #data.frame(reviewer = nm, links = links, content = content)
     do.call(rbind, lapply(links, getReviewContent, rev = nm))
 }
 
@@ -90,25 +83,17 @@ getReviewContent <- function(link, rev) {
     # should return data frame.. with rating and link?
 }
 
-getTargetRating <- function(x, df, t) {
-    target <- df$rating[which(df$restName == t & df$reviewer == x)][1]
-    rep(target, length(which(df$reviewer == x)))
-} 
+getDataForRest <- function(nm, lk) {
+    # placeholder for just get reviews...
+    paste0("Get associated reviews for ", nm, " at link: ", lk)
+}
 
 findRest <- function(x) {
     findNm <- "https://www.tripadvisor.co.uk/TypeAheadJson?types=eat&query=%s&action=API&uiOrigin=MASTHEAD&source=MASTHEAD&startTime=1476457447850"
     x <- gsub(" ", "%20", x)
     typ <- fromJSON(sprintf(findNm, x))
-    data.frame(name = typ$results$name, url = typ$results$url, stringsAsFactors = FALSE)
+    data.frame(name = typ$results$name, url = typ$results$url, 
+               stringsAsFactors = FALSE)
 }
 
-addRev <- function(lk, sc) {
-    ff <- read_csv("../csv/savedRest.csv")
-    ff <- rbind(ff, data.frame(url = lk, score = sc))
-    write_csv(ff, "../csv/savedRest.csv")
-    ff
-}
 
-getRev <- function() {
-    read_csv("../csv/savedRest.csv")
-}
