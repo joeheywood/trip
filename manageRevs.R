@@ -23,3 +23,11 @@ getRev <- function() {
         data.frame()
     }
 }
+
+removeRev <- function(x) {
+    rv <- getRev()
+    delRow <- which(rv$url == x)
+    rv <- rv[-delRow, ]
+    write_csv(ff, "../csv/savedRest.csv")
+    paste0("Row with link ", x, " deleted.")
+}

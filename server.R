@@ -23,6 +23,14 @@ shinyServer(function(input, output, session) {
         })
     })
     
+    observeEvent(input$removeRev, {
+        output$selectedRev <- renderText({
+            rv <- getRev() 
+            selected <- input$restTable_rows_selected
+            removeRev(rv$url[selected])
+        })
+    })
+    
     output$restTable <- renderDataTable({getRev()}, escape = FALSE)
     
     output$resMessage <- renderText({

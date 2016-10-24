@@ -4,6 +4,8 @@ library(stringr)
 library(jsonlite)
 library(readr)
 
+source("manageRevs.R")
+
 getReviewsPage <- function(lk, n = 100, minReviews = 5) {
     out <- data.frame()
     nextLink <- TRUE
