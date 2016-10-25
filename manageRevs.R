@@ -1,7 +1,14 @@
+
+
+if(!dir.exists("../csv/")){
+    dir.create("../csv")
+}
+
+if(!dir.exists("../csv/restos")){
+    dir.create("../csv/restos")
+}
+
 addRev <- function(lk, sc) {
-    if(!dir.exists("../csv/")){
-        dir.create("../csv")
-    }
     if(file.exists("../csv/savedRest.csv")) {
         ff <- read_csv("../csv/savedRest.csv") 
     } else {

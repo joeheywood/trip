@@ -16,7 +16,7 @@ shinyServer(function(input, output, session) {
     })
     
     observeEvent(input$getData, {
-        output$selectedRev <- renderText({
+        output$revsTable <- renderDataTable({
             rv <- getRev() 
             selected <- input$restTable_rows_selected
             getDataForRest(rv$name[selected], rv$url[selected])
