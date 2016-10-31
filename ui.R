@@ -32,7 +32,8 @@ shinyUI(fluidPage(
                     p(textOutput("selectedRev"))
                 ),
                 tabPanel(
-                    "Collected Data"
+                    "Collected Data",
+                    dataTableOutput("revsTable")
                 )
             )
             

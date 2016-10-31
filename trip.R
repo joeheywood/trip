@@ -6,12 +6,13 @@ library(readr)
 
 source("manageRevs.R")
 
-getReviewsPage <- function(lk, n = 100, minReviews = 5) {
+getReviewsPage <- function(lk, n = 100) {
     out <- data.frame()
     nextLink <- TRUE
     orVal <- 10
     restName <- "unknown"
     while(nextLink == TRUE) {
+        print(paste0("Looking in ", lk))
         s <- html_session(lk)
         restName <- html_node(s, "h1#HEADING") %>% html_text() %>% str_trim()
         revs <- html_node(s, "#REVIEWS") %>% html_nodes(".basic_review")
@@ -27,7 +28,7 @@ getReviewsPage <- function(lk, n = 100, minReviews = 5) {
             print("*************************************************************")
         }
     }
-    write_csv(out, "../csv/", str_replace(restName, " ", "_"))
+    write_csv(out, paste0("../csv/restos/", str_replace(restName, " ", "_"), ".csv"))
     out
 }
 
@@ -88,6 +89,8 @@ getReviewContent <- function(link, rev) {
 getDataForRest <- function(nm, lk) {
     # placeholder for just get reviews...
     paste0("Get associated reviews for ", nm, " at link: ", lk)
+    getReviewsPage(paste0("https://www.tripadvisor.co.uk/", lk))
+    #data.frame(a = nm, b = lk)
 }
 
 findRest <- function(x) {
