@@ -17,11 +17,16 @@ findRestYlp <- function(x) {
 
 getYelpPage <- function(lk) {
     lk <- sprintf("https://www.yelp.com%s", lk)
-    s <- html_session(lk)
-    revs <- html_nodes(s, ".review-list")
-    users <- html_nodes(revs, ".user-passport-info") 
-    # find .next button
-    lapply(users, getReviewer)
+    nxt <- TRUE
+    rvs = list()
+    while(nxt == TRUE) {
+        s <- html_session(lk)
+        revs <- html_nodes(s, ".review-list")
+        users <- html_nodes(revs, ".user-passport-info") 
+        # find .next button
+        rvs <- c(rvs, lapply(users, getReviewer))
+    }
+    rvs
 }
 
 getReviewer <- function(bl) {
