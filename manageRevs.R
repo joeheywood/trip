@@ -9,6 +9,7 @@ if(!dir.exists("../csv/restos")){
 }
 
 addRev <- function(lk, sc) {
+    save(lk, sc, file = "debug.Rda")
     if(file.exists("../csv/savedRest.csv")) {
         ff <- read_csv("../csv/savedRest.csv") 
     } else {
