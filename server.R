@@ -16,9 +16,13 @@ shinyServer(function(input, output, session) {
     })
     
     observeEvent(input$getData, {
+        print("Starting...")
         output$revsTable <- renderDataTable({
+            print("getting rev..")
             rv <- getRev() 
+            print("Getting selection")
             selected <- input$restTable_rows_selected
+            print("here...")
             getDataForRest(rv$name[selected], rv$url[selected])
         })
     })

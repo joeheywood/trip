@@ -7,6 +7,7 @@ library(readr)
 source("manageRevs.R")
 
 getReviewsPage <- function(lk, n = 100) {
+    print("final function")
     out <- data.frame()
     nextLink <- TRUE
     orVal <- 10
@@ -88,7 +89,8 @@ getReviewContent <- function(link, rev) {
 
 getDataForRest <- function(nm, lk) {
     # placeholder for just get reviews...
-    paste0("Get associated reviews for ", nm, " at link: ", lk)
+    print(paste0("Get associated reviews for ", nm, " at link: ", lk))
+    print("in the actual function")
     getReviewsPage(paste0("https://www.tripadvisor.co.uk/", lk))
     #data.frame(a = nm, b = lk)
 }
