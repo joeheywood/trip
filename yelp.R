@@ -15,6 +15,7 @@ findRestYlp <- function(x) {
     do.call(rbind, ddf)
 }
 
+# TODO: change link here to order by latest, not by yelp
 getYelpPage <- function(lk) {
     lk <- sprintf("https://www.yelp.com%s", lk)
     nxt <- TRUE
