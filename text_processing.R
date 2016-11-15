@@ -31,8 +31,8 @@ aa <- prepRestDF(fls[1])
 zz <- do.call(rbind, apply(aa, 1, intoSentences)) %>% 
     unnest_tokens(yy, word, sent) 
 
-wrd <- zz %>% group_by(id) %>% anti_join(stop_words) %>% count(id, word, sort = T)
-wr_dtm <- wrd %>% cast_dtm(id, word, n)
+wrd <- zz %>% group_by(sid) %>% anti_join(stop_words) %>% count(sid, word, sort = T)
+wr_dtm <- wrd %>% cast_dtm(sid, word, n)
 
 
 
