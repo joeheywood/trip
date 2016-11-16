@@ -12,15 +12,9 @@ getDTMFromData <- function(bb) {
     bb <- bb %>% unnest_tokens(word, sentence) %>% 
         anti_join(stop_words)
     bb <- bb[which(is.na(as.numeric(bb$word))),]
+    save(bb, file = "../csv/snt.Rda")
     bb %>% count(sid, word) %>% cast_dtm(sid, word, n)
 }
-
-
-# d <- dist(t(wc_d), method="euclidian")
-# fit <- hclust(d=d, method="ward.D")
-# groups <- cutree(fit, k=5)
-# bb$cluster <- groups[bb$word]
-# wc$cluster <- groups[wc$word]
 
 getClusterInfo <- function(x, wc) {
     wcsid <- wc[which(wc$sid == 1),]
@@ -55,13 +49,26 @@ flattenTidyObject <- function(obj) {
     gg
 }
 
-getSentenceLDA <- function(sid, df, k = 4) {
-    sidDf <- df[which(df$sid == sid), ]
-    kScores <- rep(0, k)
-    for(r in 1:nrow(sidDf)) {
-        rowTopic <- sidDf$ldaTopic[r]
-        rowBeta <- sidDf$beta[r]
-        kScores[rowTopic] <- kScores[rowTopic] + rowBeta
-    }
-    which(kScores == max(kScores))[1]
+getSentenceLDA <- function(sid, bb, wds) {
+    sdf <- bb[which(bb$sid == sid),]
+    wdf <- inner_join(wds, sdf, by = c("term" = "word"))
+    f <- colSums(wdf[, 2:(k+1)])
+    g <-sum(f)
+    ff <- f / g
+    names(ff) <- paste0(names(ff), "_pc")
+    out <- cbind(as.data.frame(t(f)), as.data.frame(t(ff)))
+    out$sid <- sid
+    out
 }
+
+saveTidyLookup <- function(k) {
+    sents <- do.call(rbind, lapply(fls, getDataInSentences)) 
+    sents$sid <- 1:nrow(sents)
+    dtm <- sents %>% getDTMFromData() 
+    wds <- dtm %>% getLDAModel(k) %>% tidyLDAobject() %>% 
+        flattenTidyObject()
+    save(k, wds, sents, dtm, file = "../csv/wds_snts.Rda")
+    TRUE
+}
+
+

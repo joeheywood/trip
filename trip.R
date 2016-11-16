@@ -6,7 +6,7 @@ library(readr)
 
 source("manageRevs.R")
 
-getReviewsPage <- function(lk, n = 100) {
+getReviewsPage <- function(lk, n = 500) {
     print("final function")
     out <- data.frame()
     nextLink <- TRUE
