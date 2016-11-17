@@ -34,6 +34,10 @@ shinyUI(fluidPage(
                 tabPanel(
                     "Collected Data",
                     dataTableOutput("revsTable")
+                ),
+                tabPanel(
+                    "LDA analysis",
+                    p(textOutput("lda_meta"))
                 )
             )
             
