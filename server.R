@@ -1,4 +1,5 @@
 source("trip.R")
+source("clustering.R")
 library(shiny)
 
 shinyServer(function(input, output, session) {
@@ -32,6 +33,27 @@ shinyServer(function(input, output, session) {
             rv <- getRev() 
             selected <- input$restTable_rows_selected
             removeRev(rv$url[selected])
+        })
+    })
+    
+    observeEvent(input$load_lda, {
+        l <- loadData()
+        tpc <- as.numeric(gsub("Topic ", "", input$topicList))
+        output$k <- renderText({paste0("Number of topics: ", l$k, " | ", tpc)})
+        output$topWords <- renderDataTable({
+            stt <- which(colnames(wds) == "tot")
+            stp <- which(colnames(wds) == "topic6pc")
+            wds$tot <- round(wds$tot*1000, 4)
+            wds <- wds[which(wds[[paste0("topic", tpc, "pc")]] > 0.35),]
+            wds[, c(1, stt:stp)] %>% arrange(-tot)
+        })
+        output$topSents <- renderDataTable({
+            ss <- sents %>% select(sid, sentence) %>% 
+                left_join(sentScores ) 
+            tpcVar <- paste0("topic", tpc, "_pc")
+            ss[[tpcVar]] <- round(ss[[tpcVar]]*100, 1)
+            ss[which(ss[[tpcVar]] > 35),c("tot", "sentence", tpcVar) ] %>%
+                arrange(-tot)
         })
     })
     

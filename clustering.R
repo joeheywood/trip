@@ -8,25 +8,25 @@ getDataInSentences <- function(f) {
         mutate(sid = row_number())
 }
 
-getDTMFromData <- function(bb) {
-    bb <- bb %>% unnest_tokens(word, sentence) %>% 
+getDTMFromData <- function(sents) {
+    sents_w <- sents %>% unnest_tokens(word, sentence) %>% 
         anti_join(stop_words)
-    bb <- bb[which(is.na(as.numeric(bb$word))),]
-    save(bb, file = "../csv/snt.Rda")
-    bb %>% count(sid, word) %>% cast_dtm(sid, word, n)
+    sents_w <- sents_w[which(is.na(as.numeric(sents_w$word))),]
+    save(sents_w, file = "../csv/sents_w.Rda")
+    sents_w %>% count(sid, word) %>% cast_dtm(sid, word, n)
 }
 
-getClusterInfo <- function(x, wc) {
-    wcsid <- wc[which(wc$sid == 1),]
-    a <- as.data.frame(table(wcsid$cluster), stringsAsFactors = F) %>% arrange(-Freq)
-    a$Var1[1]
-}
-
-getHighestScore <- function(x, mx) {
-    r <- mx[x,]
-    mxScore <- max(r)
-    data.frame(ldaTopic = which(r == max(r))[1], beta = mxScore, stringsAsFactors = F)
-}
+# getClusterInfo <- function(x, wc) {
+#     wcsid <- wc[which(wc$sid == 1),]
+#     a <- as.data.frame(table(wcsid$cluster), stringsAsFactors = F) %>% arrange(-Freq)
+#     a$Var1[1]
+# }
+# 
+# getHighestScore <- function(x, mx) {
+#     r <- mx[x,]
+#     mxScore <- max(r)
+#     data.frame(ldaTopic = which(r == max(r))[1], beta = mxScore, stringsAsFactors = F)
+# }
 
 getLDAModel <- function(dtm, k) {
     LDA(dtm, k = k, control = list(seed = 1234))
@@ -50,6 +50,7 @@ flattenTidyObject <- function(obj) {
 }
 
 getSentenceLDA <- function(sid, bb, wds) {
+    if(sid %% 100 == 0) print(sid)
     sdf <- bb[which(bb$sid == sid),]
     wdf <- inner_join(wds, sdf, by = c("term" = "word"))
     f <- colSums(wdf[, 2:(k+1)])
@@ -70,5 +71,21 @@ saveTidyLookup <- function(k) {
     save(k, wds, sents, dtm, file = "../csv/wds_snts.Rda")
     TRUE
 }
+
+getSentenceScores <- function() {
+    load("../csv/wds_snts.Rda")
+    load("../csv/sents_w.Rda")
+    sentScores <- do.call(rbind, lapply(unique(sents_w$sid), getSentenceLDA, 
+                          bb = sents_w, wds = wds))
+    save(sentScores, file = "../csv/sentScores.Rda")
+}
+
+loadData <- function() {
+    load("../csv/wds_snts.Rda")
+    load("../csv/sents_w.Rda")
+    load("../csv/sentScores.Rda")
+    list(sents = sents, sents_w = sents_w, sentScores = sentScores, k=k)
+}
+    
 
 
