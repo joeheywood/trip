@@ -37,7 +37,14 @@ shinyUI(fluidPage(
                 ),
                 tabPanel(
                     "LDA analysis",
-                    p(textOutput("lda_meta"))
+                    p(actionLink("load_lda", "Load latest lda")),
+                    h5(textOutput("k")),
+                    # sliderInput("totScore", "Tot score:", min = 0.0654, 
+                    #             max = 142, value = 0.5),
+                    selectizeInput("topicList",  label = "Topic:",
+                                   choices = paste0("Topic ", 1:k)),
+                    dataTableOutput("topWords"),
+                    dataTableOutput("topSents")
                 )
             )
             
