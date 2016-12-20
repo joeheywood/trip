@@ -3,8 +3,10 @@ library(topicmodels)
 library(tidyr)
 fls <- dir("../csv/restos/", full.names = T)
 
+
 getDataInSentences <- function(f) {
-    prepRestDF(f) %>% unnest_tokens(sentence, content, token = "sentences") %>%
+    prepRestDF(f) %>% mutate(rid = row_number()) %>%
+        unnest_tokens(sentence, content, token = "sentences") %>%
         mutate(sid = row_number())
 }
 
