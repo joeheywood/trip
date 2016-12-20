@@ -2,7 +2,7 @@ source("text_processing.R")
 library(topicmodels)
 library(tidyr)
 fls <- dir("../csv/restos/", full.names = T)
-k<-5
+
 
 getDataInSentences <- function(f) {
     prepRestDF(f) %>% mutate(rid = row_number()) %>%
